@@ -21,105 +21,69 @@ class TestPareFlightTableSite(unittest.TestCase):
             <a href="/node/205816">przeglądaj</a> </td>
             </tr>
             """
-        self.soup = parse_html(html)
+        soup = parse_html(html)
+        flights = get_flights(soup)
+        flight = flights[0]
+        self.f = Flight(flight)
 
-    def test_get_logo_mini(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            logo = get_wing_logo_mini(flight)
-            self.assertEqual(logo,"https://xcportal.pl/sites/default/files/styles/producent_logo_mini/public/dudek.png")
+
+    def test_get_wing_logo_mini(self):
+        self.assertEqual(self.f.flight["wing_logo_mini"],"https://xcportal.pl/sites/default/files/styles/producent_logo_mini/public/dudek.png")
 
     def test_get_id(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            id = get_id(flight)
-            self.assertEqual(id, '770')
+        self.assertEqual(self.f.flight["id"], '770')
     
     def test_get_node(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            node = get_node(flight)
-            self.assertEqual(node, '/node/205816')
+        self.assertEqual(self.f.flight["node"], '/node/205816')
     
-    def test_pilot_avatar_small(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            pilot = get_pilot(flight)
-            self.assertEqual(pilot, 'Bogdan Jasiński')
-
     def test_get_pilot(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            pilot_avatar_small_url = get_pilot_avatar_small(flight)
-            self.assertEqual(pilot_avatar_small_url, 'https://xcportal.pl/sites/default/files/styles/avatar_small/public/pictures/picture-58150-1546112895.jpg')
+        self.assertEqual(self.f.flight["pilot"], 'Bogdan Jasiński')
+
+    def test_pilot_avatar_small(self):
+        self.assertEqual(self.f.flight["pilot_avatar_small"], 'https://xcportal.pl/sites/default/files/styles/avatar_small/public/pictures/picture-58150-1546112895.jpg')
 
     def test_get_points(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            points = get_points(flight)
-            self.assertEqual(points, '0.56')
+        self.assertEqual(self.f.flight["points"], '0.56')
     
     def test_get_launch_country_short(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            launch_country_short = get_launch_country_short(flight)
-            self.assertEqual(launch_country_short, 'PL')
+        self.assertEqual(self.f.flight["launch_country_short"], 'PL')
     
     def test_get_launch_country(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            launch_country = get_launch_country(flight)
-            self.assertEqual(launch_country, 'Poland')
+        self.assertEqual(self.f.flight["launch_country"], 'Poland')
     
     def test_get_launch_time(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            launch_time = get_launch_time(flight)
-            self.assertEqual(launch_time, '2021-10-10T10:09:04+02:00')
+        self.assertEqual(self.f.flight["launch_time"], '2021-10-10T10:09:04+02:00')
 
     def test_get_launch_time_short(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            launch_time_short = get_launch_time_short(flight)
-            self.assertEqual(launch_time_short, '10:09')
+        self.assertEqual(self.f.flight["launch_time_short"], '10:09')
 
     def test_get_launch_spot(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            launch_spot = get_launch_spot(flight)
-            self.assertEqual(launch_spot, 'Piła')
+        self.assertEqual(self.f.flight["launch_spot"], 'Piła')
 
     def test_get_landing_time(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            landing_time = get_landing_time(flight)
-            self.assertEqual(landing_time, '2021-10-10T10:13:44+02:00')
+        self.assertEqual(self.f.flight["landing_time"], '2021-10-10T10:13:44+02:00')
 
     def test_get_landing_time_short(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            landing_time_short = get_landing_time_short(flight)
-            self.assertEqual(landing_time_short, '10:13')
+        self.assertEqual(self.f.flight["landing_time_short"], '10:13')
 
     def test_get_landing_time_short(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            landing_spot = get_landing_spot(flight)
-            self.assertEqual(landing_spot, 'Piła, Polska')
+        self.assertEqual(self.f.flight["landing_spot"], 'Piła, Polska')
 
     def test_get_wing(self):
-        flights = get_flights(self.soup)
-        for flight in flights:
-            wing = get_wing(flight)
-            self.assertEqual(wing, 'Orca XX 41')
+        self.assertEqual(self.f.flight["wing"], 'Orca XX 41')
+    
+    def test_get_wing_logo_mini(self):
+        self.assertEqual(self.f.flight["wing_logo_mini"], 'https://xcportal.pl/sites/default/files/styles/producent_logo_mini/public/dudek.png')
 
             
-class TestDownloadFlightData(unittest.TestCase):
-    def setUp(self):
-        self.record = {'id': '21', 'node': '/node/205792', 'pilot': 'Piotr Staszak', 'pilot_avatar_small': 'https://xcportal.pl/sites/default/files/styles/avatar_small/public/pictures/picture-default.png', 'points': '61.51', 'launch_country_short': 'IT', 'launch_country': 'Italy', 'launch_time': '2021-10-10T09:10:02+02:00', 'launch_time_short': '09:10', 'launch_spot': 'Bassano', 'landing_time': '2021-10-10T13:14:12+02:00', 'landing_time_short': '13:14', 'landing_spot': 'Borso del Grappa, Włochy', 'wing': 'Delta 3 ML', 'wing_logo_mini': 'https://xcportal.pl/sites/default/files/styles/producent_logo_mini/public/ozone.png'}
+# class TestDownloadFlightData(unittest.TestCase):
+#     def setUp(self):
+#         self.record = {'id': '21', 'node': '/node/205792', 'pilot': 'Piotr Staszak', 'pilot_avatar_small': 'https://xcportal.pl/sites/default/files/styles/avatar_small/public/pictures/picture-default.png', 'points': '61.51', 'launch_country_short': 'IT', 'launch_country': 'Italy', 'launch_time': '2021-10-10T09:10:02+02:00', 'launch_time_short': '09:10', 'launch_spot': 'Bassano', 'landing_time': '2021-10-10T13:14:12+02:00', 'landing_time_short': '13:14', 'landing_spot': 'Borso del Grappa, Włochy', 'wing': 'Delta 3 ML', 'wing_logo_mini': 'https://xcportal.pl/sites/default/files/styles/producent_logo_mini/public/ozone.png'}
 
-    def test_download(self):
-        pass
+#     def test_download(self):
+#         # print(self.record["node"])
+#         flight_page_soup= getFlightPage(self.record["node"])
+#         pass
 
 
 
