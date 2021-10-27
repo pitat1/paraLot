@@ -76,6 +76,7 @@ class TestPareFlightTableSite(unittest.TestCase):
         self.assertEqual(self.f.flight["wing_logo_mini"], 'https://xcportal.pl/sites/default/files/styles/producent_logo_mini/public/dudek.png')
 class TestDownloadFlightData(unittest.TestCase):
     def setUp(self):
+        # data from /node/205792
         html = """
         <div class="views-field views-field-title-2"> <span class="field-content"><a href="/node/16836">Bassano, Italy <time datetime="2021-10-10T09:10:02+02:00">09:10</time></a></span> </div>
         <div class="views-field views-field-field-flight-landing-site"> <div class="field-content">Borso del Grappa, Włochy <time datetime="2021-10-10T13:14:12+02:00">13:14</time></div> </div>

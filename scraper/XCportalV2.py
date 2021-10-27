@@ -1,10 +1,16 @@
 # %% import
+from datetime import date
 from bs4 import BeautifulSoup, element
 import requests
+import time
+from datetime import date, timedelta
+import os
+import json
 
 # %%
 
-DATE = "2021-10"
+download_path = 'data'
+DATE = "2010-04"
 
 def parse_html(page):
     return BeautifulSoup(page, "html.parser")
@@ -124,13 +130,25 @@ class ParseFlightFromNode():
         return page.find('div', class_="views-field views-field-field-flight-duration").get_text().strip()
 
     def get_is_pg(self, page):
-        return page.find('div', class_="field-name-field-flight-ppg").get_text().split(':')[1].strip() == 'Nie'
+        try:
+            is_pg = page.find('div', class_="field-name-field-flight-ppg").get_text().split(':')[1].strip() == 'Nie'
+        except AttributeError:
+            is_pg = None
+        return 
 
     def get_g_record(self, page):
-        return page.find('div', class_="field-name-field-flight-grecord").get_text().split(':')[1].strip() == 'Poprawny'
+        try:
+            g_record_status = page.find('div', class_="field-name-field-flight-grecord").get_text().split(':')[1].strip() == 'Poprawny'
+        except AttributeError:
+            g_record_status = None
+        return g_record_status
     
     def get_is_contest(self, page):
-        return page.find('div', class_="field-name-field-flight-no-contest").get_text().split(':')[1].strip() == 'Nie'
+        try:    
+            is_contest = page.find('div', class_="field-name-field-flight-no-contest").get_text().split(':')[1].strip() == 'Nie'
+        except AttributeError:
+            is_contest = None
+        return is_contest
 
     def get_airspace_violation(self, page):
         return page.find('div', class_="field-name-field-airspace-violation-status").get_text().split(':')[1].strip() != 'Lot nienarusza polskich stref'
@@ -144,20 +162,41 @@ class ParseFlightFromNode():
     def get_flight_avg_speed(self, page):
         return page.find('div', class_="field-name-field-flight-route-avg-speed").get_text().strip()[len('Średnia prędkość trasy: '):-len('km/h')]
 
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + timedelta(n)
+
+
 # %%
 if __name__ == "__main__":
+    if not os.path.isdir(download_path):
+        os.makedirs(download_path)
+    flights_file = open(os.path.join(download_path, 'flights.txt'), 'a')
+    
+    # start_date = date(2010, 1, 1)
+    # end_date = date(2021, 10, 1)
+    # for single_date in daterange(start_date, end_date):
+    #     date_str = single_date.strftime("%Y-%m-%d")
+    #     file.write(date_str + '\n') 
+    # file.close()
+ 
 
     soup = get_flights_table(DATE)
     flights = get_flights(soup)
-    for flight in flights:
+    for idx, flight in enumerate(flights):
+        print("Parsing flight:\t#{} from date:\t{}".format(idx, DATE))
         singleFlight = ParseFlightFromTable(flight)
-        print(singleFlight.flight)
+        flight_page = getFlightPage(singleFlight.flight['node'])
+        additional_flight_data = ParseFlightFromNode(flight_page)
+        
+        flight_data = singleFlight.flight
+        flight_data.update(additional_flight_data.flight)
 
-    flight_page = getFlightPage("/node/205792")
-    additional_flight_data = ParseFlightFromNode(flight_page)
-    print(additional_flight_data.flight)
+        flight_data['igc_path'] = flight_data['node'].split('/')[2] + '_' + flight_data['igc_name']
+        igc = requests.get(flight_data['igc_href'], allow_redirects=True)
+        open(os.path.join(download_path, flight_data['igc_path']), 'wb').write(igc.content)
 
-
-
+        flights_file.write('{}\n'.format(json.dumps(flight_data))) 
+        time.sleep(0.5)
 
 # %%
