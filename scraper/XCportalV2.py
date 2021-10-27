@@ -14,9 +14,15 @@ def get_flights_table(DATE):
     page = requests.get(URL+DATE)
     return parse_html(page.content)
 
+def getFlightPage(node):
+        URL = "https://xcportal.pl"
+        page = requests.get(URL + node)
+        return parse_html(page.content)
+
 def get_flights(soup):
     return soup.find_all("tr",class_=["even", "odd"])
-class Flight():
+
+class ParseFlightFromTable():
     flight = {}
     def __init__(self, *args):
         if isinstance(args[0], element.Tag):
@@ -90,27 +96,68 @@ class Flight():
     def get_wing(self, flight_soup):
         return flight_soup.find("td", class_="col_wing").get_text().strip()
 
-# %%
-soup = get_flights_table(DATE)
-flights = get_flights(soup)
+class ParseFlightFromNode():
+    flight = {}
+    def __init__(self, *args):
+        if isinstance(args[0], element.Tag):
+            page = args[0]
+            self.flight = {
+                "igc_href": self.get_igc_href(page),
+                "igc_name": self.get_igc_name(page),
+                "igc_duration": self.get_igc_duration(page),
+                "isPg": self.get_is_pg(page),
+                "GRecord": self.get_g_record(page),
+                "isContest": self.get_is_contest(page),
+                "airspace_violation": self.get_airspace_violation(page),
+                "flight_distance": self.get_flight_distance(page),
+                "flight_duration": self.get_flight_duration(page),
+                "flight_avg_speed": self.get_flight_avg_speed(page)
+            }
+
+    def get_igc_href(self, page):
+        return page.find('div', class_="field-name-field-flight-track-file").find('a',class_="file-icon mime-application-octet-stream").get('href')
+
+    def get_igc_name(self, page):
+        return page.find('div', class_="field-name-field-flight-track-file").find('a',class_="file-icon mime-application-octet-stream").get_text()
+
+    def get_igc_duration(self, page):
+        return page.find('div', class_="views-field views-field-field-flight-duration").get_text().strip()
+
+    def get_is_pg(self, page):
+        return page.find('div', class_="field-name-field-flight-ppg").get_text().split(':')[1].strip() == 'Nie'
+
+    def get_g_record(self, page):
+        return page.find('div', class_="field-name-field-flight-grecord").get_text().split(':')[1].strip() == 'Poprawny'
+    
+    def get_is_contest(self, page):
+        return page.find('div', class_="field-name-field-flight-no-contest").get_text().split(':')[1].strip() == 'Nie'
+
+    def get_airspace_violation(self, page):
+        return page.find('div', class_="field-name-field-airspace-violation-status").get_text().split(':')[1].strip() != 'Lot nienarusza polskich stref'
+
+    def get_flight_distance(self, page):
+        return page.find('div', class_="field-name-field-flight-route-length").get_text().split(':')[1].strip()[:-len('km')]
+    
+    def get_flight_duration(self, page):
+        return page.find('div', class_="field-name-field-flight-route-duration").get_text()[len('Czas trasy: '):]
+    
+    def get_flight_avg_speed(self, page):
+        return page.find('div', class_="field-name-field-flight-route-avg-speed").get_text().strip()[len('Średnia prędkość trasy: '):-len('km/h')]
 
 # %%
 if __name__ == "__main__":
 
+    soup = get_flights_table(DATE)
+    flights = get_flights(soup)
     for flight in flights:
-        singleFlight = Flight(flight)
+        singleFlight = ParseFlightFromTable(flight)
         print(singleFlight.flight)
 
-# %%
+    flight_page = getFlightPage("/node/205792")
+    additional_flight_data = ParseFlightFromNode(flight_page)
+    print(additional_flight_data.flight)
 
-# def getFlightPage(node):
-#     URL = "https://xcportal.pl"
-#     page = requests.get(URL + node)
-#     return parse_html(page.content)
 
-# flight_page = getFlightPage("/node/205792")
-# # %%
-# igc_href = flight_page.find('div', class_="field-name-field-flight-track-file").find('a',class_="file-icon mime-application-octet-stream").get('href')
-# igc_name = flight_page.find('div', class_="field-name-field-flight-track-file").find('a',class_="file-icon mime-application-octet-stream").get_text()
-# print(igc_name)
+
+
 # %%
