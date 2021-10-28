@@ -191,7 +191,7 @@ class ParseFlightFromNode():
             is_pg = page.find('div', class_="field-name-field-flight-ppg").get_text().split(':')[1].strip() == 'Nie'
         except AttributeError:
             is_pg = None
-        return 
+        return is_pg
 
     def get_g_record(self, page):
         try:
