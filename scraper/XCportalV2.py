@@ -8,9 +8,13 @@ import os
 import json
 
 # %%
+# peoblematic nodes:
+# https://xcportal.pl/node/71071
+# https://xcportal.pl/node/117171
+# https://xcportal.pl/node/206467
+# https://xcportal.pl/node/73513
 
 download_path = 'data'
-DATE = "2010-04"
 
 def parse_html(page):
     return BeautifulSoup(page, "html.parser")
@@ -66,41 +70,94 @@ class ParseFlightFromTable():
         return flight_soup.find("a").get('href')
 
     def get_pilot(self, flight_soup):
-        return flight_soup.find("td",class_="col_pilot").get_text().strip()
+        try: 
+            pilot = flight_soup.find("td",class_="col_pilot").get_text().strip()
+        except AttributeError:
+            pilot = "error"
+        return pilot
 
     def get_pilot_avatar_small(self, flight_soup):
-        url = flight_soup.find("td",class_="col_pilot").find("img").get('src')
-        return url.split('?')[0]
+        try:
+            url = flight_soup.find("td",class_="col_pilot").find("img").get('src')
+            avatar_url = url.split('?')[0]
+        except AttributeError:
+            avatar_url = None
+        return avatar_url
 
     def get_points(self, flight_soup):
-        return flight_soup.find("td", class_="col_max_points").get_text().strip()
+        try:
+            points = flight_soup.find("td", class_="col_max_points").get_text().strip()
+        except AttributeError:
+            points = "error"
+        return points
 
     def get_launch_country_short(self, flight_soup):
-        return flight_soup.find("td", class_="col_launch").find("img").get('alt')
+        try:
+            launch_country_short = flight_soup.find("td", class_="col_launch").find("img").get('alt')
+        except AttributeError:
+            launch_country_short = "error"
+        return launch_country_short
 
     def get_launch_country(self, flight_soup):
-        return flight_soup.find("td", class_="col_launch").find("img").get('title')
+        try:
+            launch_country = flight_soup.find("td", class_="col_launch").find("img").get('title')
+        except AttributeError:
+            launch_country = "error"
+        return launch_country
 
     def get_launch_time(self, flight_soup):
-        return flight_soup.find("td", class_="col_launch").find('time').get('datetime')
+        try:
+            launch_time = flight_soup.find("td", class_="col_launch").find('time').get('datetime')
+        except AttributeError:
+            launch_time = "error"
+        return launch_time
 
     def get_launch_time_short(self, flight_soup):
-        return flight_soup.find("td", class_="col_launch").find('time').get_text()
+        try:
+            launch_time_short = flight_soup.find("td", class_="col_launch").find('time').get_text()  
+        except AttributeError:
+            launch_time_short = "error"
+        return launch_time_short
 
     def get_launch_spot(self, flight_soup):
-        return flight_soup.find("td", class_="col_launch").contents[2]
+        try:
+            if len(flight_soup.find("td", class_="col_launch").contents)!=5:
+                launch_spot = "error"
+                print("ERROR in launch_spot")
+            else:
+                launch_spot = flight_soup.find("td", class_="col_launch").contents[2]
+            
+        except AttributeError:
+            launch_spot = "error"
+        return launch_spot
 
     def get_landing_time(self, flight_soup):
-        return flight_soup.find("td", class_="col_landing").find('time').get('datetime')
+        try:
+            landing_time = flight_soup.find("td", class_="col_landing").find('time').get('datetime')
+        except AttributeError:
+            landing_time = "error"
+        return landing_time
 
     def get_landing_time_short(self, flight_soup):
-        return flight_soup.find("td", class_="col_landing").find('time').get_text()
+        try:
+            landing_time_short = flight_soup.find("td", class_="col_landing").find('time').get_text()
+        except AttributeError:
+            landing_time_short = "error"
+        return 
 
     def get_landing_spot(self, flight_soup):
-        return flight_soup.find("td", class_="col_landing").contents[0].strip()
+        try:
+            landing_spot = flight_soup.find("td", class_="col_landing").contents[0].strip()
+        except AttributeError:
+            landing_spot = "error"
+        return landing_spot
 
     def get_wing(self, flight_soup):
-        return flight_soup.find("td", class_="col_wing").get_text().strip()
+        try:
+            wing = flight_soup.find("td", class_="col_wing").get_text().strip()
+        except AttributeError:
+            wing = None
+        return wing
 
 class ParseFlightFromNode():
     flight = {}
@@ -151,17 +208,32 @@ class ParseFlightFromNode():
         return is_contest
 
     def get_airspace_violation(self, page):
-        return page.find('div', class_="field-name-field-airspace-violation-status").get_text().split(':')[1].strip() != 'Lot nienarusza polskich stref'
-
+        try:
+            is_airspace_violated = page.find('div', class_="field-name-field-airspace-violation-status").get_text().split(':')[1].strip() != 'Lot nienarusza polskich stref'
+        except AttributeError:
+            is_airspace_violated = None
+        return is_airspace_violated
+        
     def get_flight_distance(self, page):
-        return page.find('div', class_="field-name-field-flight-route-length").get_text().split(':')[1].strip()[:-len('km')]
+        try:
+            flight_distance = page.find('div', class_="field-name-field-flight-route-length").get_text().split(':')[1].strip()[:-len('km')]
+        except AttributeError:
+            flight_distance = "error"
+        return flight_distance
     
     def get_flight_duration(self, page):
-        return page.find('div', class_="field-name-field-flight-route-duration").get_text()[len('Czas trasy: '):]
-    
+        try:
+            flight_duration = page.find('div', class_="field-name-field-flight-route-duration").get_text()[len('Czas trasy: '):]
+        except AttributeError:
+            flight_duration = "error"
+        return flight_duration
     def get_flight_avg_speed(self, page):
-        return page.find('div', class_="field-name-field-flight-route-avg-speed").get_text().strip()[len('Średnia prędkość trasy: '):-len('km/h')]
-
+        try:
+            flight_avg_speed = page.find('div', class_="field-name-field-flight-route-avg-speed").get_text().strip()[len('Średnia prędkość trasy: '):-len('km/h')]
+        except AttributeError:
+            flight_avg_speed = "error"
+        return flight_avg_speed
+        
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
         yield start_date + timedelta(n)
@@ -172,31 +244,29 @@ if __name__ == "__main__":
     if not os.path.isdir(download_path):
         os.makedirs(download_path)
     flights_file = open(os.path.join(download_path, 'flights.txt'), 'a')
-    
-    # start_date = date(2010, 1, 1)
-    # end_date = date(2021, 10, 1)
-    # for single_date in daterange(start_date, end_date):
-    #     date_str = single_date.strftime("%Y-%m-%d")
-    #     file.write(date_str + '\n') 
-    # file.close()
- 
+    iterator = 0
+    start_date = date(2013, 4, 30)
+    end_date = date(2021, 10, 1)
+    for single_date in daterange(start_date, end_date):
+        date_str = single_date.strftime("%Y-%m-%d") 
+        soup = get_flights_table(date_str)
 
-    soup = get_flights_table(DATE)
-    flights = get_flights(soup)
-    for idx, flight in enumerate(flights):
-        print("Parsing flight:\t#{} from date:\t{}".format(idx, DATE))
-        singleFlight = ParseFlightFromTable(flight)
-        flight_page = getFlightPage(singleFlight.flight['node'])
-        additional_flight_data = ParseFlightFromNode(flight_page)
-        
-        flight_data = singleFlight.flight
-        flight_data.update(additional_flight_data.flight)
+        flights = get_flights(soup)
+        for idx, flight in enumerate(flights):
+            print("line: {}\tParsing flight:\t#{} from date:\t{}".format(iterator, idx, date_str))
+            singleFlight = ParseFlightFromTable(flight)
+            flight_page = getFlightPage(singleFlight.flight['node'])
+            additional_flight_data = ParseFlightFromNode(flight_page)
+            
+            flight_data = singleFlight.flight
+            flight_data.update(additional_flight_data.flight)
+            flight_data['igc_path'] = flight_data['node'].split('/')[2] + '_' + flight_data['igc_name']
+            igc = requests.get(flight_data['igc_href'], allow_redirects=True)
+            open(os.path.join(download_path, flight_data['igc_path']), 'wb').write(igc.content)
+            flights_file.write('{}\n'.format(json.dumps(flight_data))) 
+            iterator += 1
+            time.sleep(0.5)
 
-        flight_data['igc_path'] = flight_data['node'].split('/')[2] + '_' + flight_data['igc_name']
-        igc = requests.get(flight_data['igc_href'], allow_redirects=True)
-        open(os.path.join(download_path, flight_data['igc_path']), 'wb').write(igc.content)
-
-        flights_file.write('{}\n'.format(json.dumps(flight_data))) 
-        time.sleep(0.5)
+    flights_file.close()
 
 # %%
