@@ -13,6 +13,7 @@ import json
 # https://xcportal.pl/node/117171
 # https://xcportal.pl/node/206467
 # https://xcportal.pl/node/73513
+# https://xcportal.pl/node/154617
 
 download_path = 'data'
 
@@ -178,13 +179,25 @@ class ParseFlightFromNode():
             }
 
     def get_igc_href(self, page):
-        return page.find('div', class_="field-name-field-flight-track-file").find('a',class_="file-icon mime-application-octet-stream").get('href')
+        try:
+            igc_name = page.find('div', class_="field-name-field-flight-track-file").find('a',class_="file-icon mime-application-octet-stream").get('href')
+        except AttributeError:
+            igc_name = "error"
+        return igc_name
 
     def get_igc_name(self, page):
-        return page.find('div', class_="field-name-field-flight-track-file").find('a',class_="file-icon mime-application-octet-stream").get_text()
+        try:
+            igc_name = page.find('div', class_="field-name-field-flight-track-file").find('a',class_="file-icon mime-application-octet-stream").get_text()
+        except AttributeError:
+            igc_name = "error"
+        return igc_name
 
     def get_igc_duration(self, page):
-        return page.find('div', class_="views-field views-field-field-flight-duration").get_text().strip()
+        try:
+            igc_duration = page.find('div', class_="views-field views-field-field-flight-duration").get_text().strip()
+        except AttributeError:
+            igc_duration = "error"
+        return igc_duration
 
     def get_is_pg(self, page):
         try:
@@ -245,7 +258,7 @@ if __name__ == "__main__":
         os.makedirs(download_path)
     flights_file = open(os.path.join(download_path, 'flights.txt'), 'a')
     iterator = 0
-    start_date = date(2013, 4, 30)
+    start_date = date(2016, 7, 23)
     end_date = date(2021, 10, 1)
     for single_date in daterange(start_date, end_date):
         date_str = single_date.strftime("%Y-%m-%d") 
@@ -265,7 +278,7 @@ if __name__ == "__main__":
             open(os.path.join(download_path, flight_data['igc_path']), 'wb').write(igc.content)
             flights_file.write('{}\n'.format(json.dumps(flight_data))) 
             iterator += 1
-            time.sleep(0.5)
+            time.sleep(0.1)
 
     flights_file.close()
 
