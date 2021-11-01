@@ -258,7 +258,7 @@ if __name__ == "__main__":
         os.makedirs(download_path)
     flights_file = open(os.path.join(download_path, 'flights.txt'), 'a')
     iterator = 0
-    start_date = date(2016, 7, 23)
+    start_date = date(2019, 7, 1)
     end_date = date(2021, 10, 1)
     for single_date in daterange(start_date, end_date):
         date_str = single_date.strftime("%Y-%m-%d") 
