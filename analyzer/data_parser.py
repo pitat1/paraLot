@@ -17,8 +17,8 @@ ppg = 0
 takeoff_file_pg = open('takeoff_pg.csv', 'w')
 landing_file_pg = open('landing_pg.csv', 'w')
 
-takeoff_file_ppg = open('takeoff_pg.csv', 'w')
-landing_file_ppg = open('landing_pg.csv', 'w')
+takeoff_file_ppg = open('takeoff_ppg.csv', 'w')
+landing_file_ppg = open('landing_ppg.csv', 'w')
 
 missing_files = open('missing.csv', 'w')
 flight_errors = open('errors.csv', 'w')
