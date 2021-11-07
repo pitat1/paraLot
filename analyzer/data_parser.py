@@ -31,10 +31,10 @@ with open(os.path.join(data_folder, flight_file), 'r') as f:
         try:
             flight = igc_lib.Flight.create_from_file(igc_file)
         except FileNotFoundError:
-            missing_files.write('{}, {}/n'.format(igc_file, xcportal + flight_data['node']))
+            missing_files.write('{}, {}\n'.format(igc_file, xcportal + flight_data['node']))
 
         if not flight.valid:
-            flight_errors.write('{}, {}'.format(xcportal + flight_data['node'], flight.notes))
+            flight_errors.write('{}, {}\n'.format(xcportal + flight_data['node'], flight.notes))
             print("Provided flight id:{} is invalid node: {} \t error:{}".format(i, xcportal + flight_data['node'], flight.notes))
         else:
             takeoff_line = "{}, {}, {}, Flight duration: {} Flight date: {} URL: {}\n".format(flight.takeoff_fix.lat, flight.takeoff_fix.lon, flight.takeoff_fix.alt, flight_data['flight_duration'], flight_data['launch_time'][:10], xcportal + flight_data['node'])

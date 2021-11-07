@@ -8,7 +8,7 @@ import os
 import json
 
 # %%
-# peoblematic nodes:
+# problematic nodes:
 # https://xcportal.pl/node/71071
 # https://xcportal.pl/node/117171
 # https://xcportal.pl/node/206467
