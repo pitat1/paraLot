@@ -25,6 +25,9 @@ else()
     pkg_search_module(CPPUTEST REQUIRED cpputest>=3.8)
     message(STATUS "Found CppUTest version ${CPPUTEST_VERSION}")
 endif()
+
+find_package(Qt5 COMPONENTS Core Gui Widgets WebEngine REQUIRED)
+
 link_directories(${CPPUTEST_LIBRARIES})
     
 add_subdirectory(igc_analyzer)

@@ -10,7 +10,7 @@ set(MAIN_SOURCES
 )
 add_library("${PROJECT_NAME}_lib" STATIC ${APP_LIB_SOURCE})
 add_executable(${PROJECT_NAME} ${MAIN_SOURCES})
-target_link_libraries(${APP_NAME} "${PROJECT_NAME}_lib")
+target_link_libraries(${APP_NAME} "${PROJECT_NAME}_lib" Qt5::Core Qt5::Gui Qt5::Widgets Qt5::WebEngine)
 
 
 
